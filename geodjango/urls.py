@@ -1,6 +1,7 @@
 from django.contrib.gis import admin
 from django.urls import path, include
 from django.conf import settings
+from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
@@ -18,10 +19,9 @@ urlpatterns = [
         "users/",
         include("users.urls", namespace="users"),
     ),
-    #path('users/', admin.site.urls),
-    #path('profiles/', admin.site.urls),
-    #path('gp_projects/', admin.site.urls),
-]
+    path('gp_projects/', include('gp_projects.urls')),
+    path('profiles/', include('profiles.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 if settings.DEBUG:
