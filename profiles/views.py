@@ -103,12 +103,16 @@ class FileUploadView(APIView):
     parser_classes = (FileUploadParser,)
     permission_classes = (permissions.IsAuthenticated,)
 
-    def put(self, request, filename, format=None):
+    def put(self, request, name, format=None):
         file_obj = request.data['file']
         # ...
         # do some stuff with uploaded file
         # ...
         return Response(status=204)
+    
+    def post(self):
+        print('upload file')
+        return 'dd'
 
 class UserProjectsViewSet(ModelViewSet):
 

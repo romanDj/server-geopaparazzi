@@ -47,100 +47,103 @@ def LoadUserProject(userproject_file, ownerid):
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
 
-    # import gpstracks if any
-    for gpslog in c.execute('SELECT * FROM gpslogs;'):
-        log_dict = dict(gpslog)
-        rcd = TrackFeature(owner=owner, text=log_dict['text'])
-        rcd.timestamp_start = datetime.utcfromtimestamp(log_dict['startts']/1000).replace(tzinfo=timezone.utc)
-        rcd.timestamp_end = datetime.utcfromtimestamp(log_dict['endts']/1000).replace(tzinfo=timezone.utc)
-        rcd.lengthm = log_dict['lengthm']
-        d = conn.cursor()
-        plist = []
-        for pt in d.execute('SELECT * FROM gpslogsdata WHERE logid=? ORDER BY ts ASC', (log_dict['_id'],)):
-            pt_dict = dict(pt)
-            plist.append(Point(pt_dict['lon'], pt_dict['lat']))
-        rcd.linestring = LineString(plist)
-        rcd.save()
-        d.close()
+    if tableAvailability(c, 'gpslogs'):
+        # import gpstracks if any
+        for gpslog in c.execute('SELECT * FROM gpslogs;'):
+            log_dict = dict(gpslog)
+            rcd = TrackFeature(owner=owner, text=log_dict['text'])
+            rcd.timestamp_start = datetime.utcfromtimestamp(log_dict['startts']/1000).replace(tzinfo=timezone.utc)
+            rcd.timestamp_end = datetime.utcfromtimestamp(log_dict['endts']/1000).replace(tzinfo=timezone.utc)
+            rcd.lengthm = log_dict['lengthm']
+            d = conn.cursor()
+            plist = []
+            for pt in d.execute('SELECT * FROM gpslogsdata WHERE logid=? ORDER BY ts ASC', (log_dict['_id'],)):
+                pt_dict = dict(pt)
+                plist.append(Point(pt_dict['lon'], pt_dict['lat']))
+            rcd.linestring = LineString(plist)
+            rcd.save()
+            d.close()
 
-    # import notes and images together in order to preserve relationships
-    for nt in c.execute('SELECT * FROM notes;'):
-        nt_dict = dict(nt)
-        rcd = Note(owner=owner, text= nt_dict['text'], form = nt_dict['form'])
-        rcd.timestamp = datetime.utcfromtimestamp(nt_dict['ts']/1000).replace(tzinfo=timezone.utc)
-        rcd.description = nt_dict['description']
-        rcd.lat = nt_dict['lat']
-        rcd.lon = nt_dict['lon']
-        rcd.location = Point(rcd.lon, rcd.lat)
-        rcd.altitude = nt_dict['altim']
-        rcd.save()  # save the Note here so that we can refer to it when creating ImageNote records
-        d = conn.cursor()
-        # Import all Images linked to the current Note
-        # Design Note:  presumes ImageNote records are _always_ referenced by a Note
-        #               unreferenced records will not be imported
-        for im in d.execute('SELECT * FROM images WHERE note_id=?;', (nt_dict['_id'],)):
-            im_dict = dict(im)
-            imgrcd = ImageNote(owner=owner, note=rcd, azimuth=im_dict['azim'])
-            # Note that ImageNote records have time and location distinct from the Note
-            imgrcd.timestamp = datetime.utcfromtimestamp(im_dict['ts']/1000).replace(tzinfo=timezone.utc)
-            imgrcd.lat = im_dict['lat']
-            imgrcd.lon = im_dict['lon']
-            imgrcd.location = Point(imgrcd.lon, imgrcd.lat)
-            imgrcd.altitude = im_dict['altim']
-            e = conn.cursor()
-            e.execute('SELECT * FROM imagedata WHERE _id=?;', (im_dict['_id'],))
-            img = e.fetchone()
-            img_dict = dict(img)
-            # save the full image locally - this should probably be put in a temp directory
-            blob = img_dict['data']
-            local_filename = im_dict['text']
-            with open(local_filename, 'wb') as output_file:
-                output_file.write(blob)
+    if tableAvailability(c, 'notes'):
+        # import notes and images together in order to preserve relationships
+        for nt in c.execute('SELECT * FROM notes;'):
+            nt_dict = dict(nt)
+            rcd = Note(owner=owner, text= nt_dict['text'], form = nt_dict['form'])
+            rcd.timestamp = datetime.utcfromtimestamp(nt_dict['ts']/1000).replace(tzinfo=timezone.utc)
+            rcd.description = nt_dict['description']
+            rcd.lat = nt_dict['lat']
+            rcd.lon = nt_dict['lon']
+            rcd.location = Point(rcd.lon, rcd.lat)
+            rcd.altitude = nt_dict['altim']
+            rcd.save()  # save the Note here so that we can refer to it when creating ImageNote records
+            d = conn.cursor()
+            # Import all Images linked to the current Note
+            # Design Note:  presumes ImageNote records are _always_ referenced by a Note
+            #               unreferenced records will not be imported
+            if tableAvailability(d, 'images'):
+                for im in d.execute('SELECT * FROM images WHERE note_id=?;', (nt_dict['_id'],)):
+                    im_dict = dict(im)
+                    imgrcd = ImageNote(owner=owner, note=rcd, azimuth=im_dict['azim'])
+                    # Note that ImageNote records have time and location distinct from the Note
+                    imgrcd.timestamp = datetime.utcfromtimestamp(im_dict['ts']/1000).replace(tzinfo=timezone.utc)
+                    imgrcd.lat = im_dict['lat']
+                    imgrcd.lon = im_dict['lon']
+                    imgrcd.location = Point(imgrcd.lon, imgrcd.lat)
+                    imgrcd.altitude = im_dict['altim']
+                    e = conn.cursor()
+                    e.execute('SELECT * FROM imagedata WHERE _id=?;', (im_dict['_id'],))
+                    img = e.fetchone()
+                    img_dict = dict(img)
+                    # save the full image locally - this should probably be put in a temp directory
+                    blob = img_dict['data']
+                    local_filename = im_dict['text']
+                    with open(local_filename, 'wb') as output_file:
+                        output_file.write(blob)
 
-            # Rotate the image if an orientation tag is available
-            try:
-                image = Image.open(local_filename)
-                for orientation in ExifTags.TAGS.keys():
-                    if ExifTags.TAGS[orientation] == 'Orientation':
-                        break
-                exif = dict(image._getexif().items())
+                    # Rotate the image if an orientation tag is available
+                    try:
+                        image = Image.open(local_filename)
+                        for orientation in ExifTags.TAGS.keys():
+                            if ExifTags.TAGS[orientation] == 'Orientation':
+                                break
+                        exif = dict(image._getexif().items())
 
-                if exif[orientation] == 3:
-                    image = image.rotate(180, expand=True)
-                elif exif[orientation] == 6:
-                    image = image.rotate(270, expand=True)
-                elif exif[orientation] == 8:
-                    image = image.rotate(90, expand=True)
-                image.save(local_filename)
-                image.close()
+                        if exif[orientation] == 3:
+                            image = image.rotate(180, expand=True)
+                        elif exif[orientation] == 6:
+                            image = image.rotate(270, expand=True)
+                        elif exif[orientation] == 8:
+                            image = image.rotate(90, expand=True)
+                        image.save(local_filename)
+                        image.close()
 
-            except (AttributeError, KeyError, IndexError):
-                # cases: image don't have getexif
-                pass
+                    except (AttributeError, KeyError, IndexError):
+                        # cases: image don't have getexif
+                        pass
 
-            qf = open(local_filename, 'rb')
-            imgrcd.image = File(qf)
-            # the thumbnail - also should be placed in a temp directory
-            blob = img_dict['thumbnail']
-            thmname = 'thm_{0}'.format(local_filename)
-            with open(thmname, 'wb') as output_file:
-                output_file.write(blob)
-            qt = open(thmname, 'rb')
-            imgrcd.thumbnail = File(qt)
-            # save the newly created image record
-            imgrcd.save()
-            # clean up temporary image files
-            qf.close()
-            try:
-                os.remove(local_filename)
-            except OSError as err:
-                pass
+                    qf = open(local_filename, 'rb')
+                    imgrcd.image = File(qf)
+                    # the thumbnail - also should be placed in a temp directory
+                    blob = img_dict['thumbnail']
+                    thmname = 'thm_{0}'.format(local_filename)
+                    with open(thmname, 'wb') as output_file:
+                        output_file.write(blob)
+                    qt = open(thmname, 'rb')
+                    imgrcd.thumbnail = File(qt)
+                    # save the newly created image record
+                    imgrcd.save()
+                    # clean up temporary image files
+                    qf.close()
+                    try:
+                        os.remove(local_filename)
+                    except OSError as err:
+                        pass
 
-            qt.close()
-            try:
-                os.remove(thmname)
-            except OSError as err:
-                pass
+                    qt.close()
+                    try:
+                        os.remove(thmname)
+                    except OSError as err:
+                        pass
 
     # clean up the temporary sqlite3 file
     userproject.close()
@@ -148,3 +151,28 @@ def LoadUserProject(userproject_file, ownerid):
         os.remove(userproject.name)
     except OSError as err:
         pass
+
+
+def tableAvailability(cursor, table_name):
+    try:
+        query = cursor.execute(f'SELECT * FROM  {table_name};')
+        print('table have')
+        print('----------')
+        return True
+    except:
+        print('table have not')
+        print('----------')
+        return False
+    
+    #query = cursor.execute('SELECT * FROM sqlite_master WHERE type="table" AND name="?" ;', (table_name,))
+    #print('load data')
+    #print(query.fetchone())
+    #print(f'count row {query.rowcount}')
+    #get_val = dict(query)
+    #if query.rowcount > 0:
+    #    print('yes table')
+    #    print('----------')
+    #    return True
+    #print('no table')
+    #print('----------')
+    #return False

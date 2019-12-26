@@ -19,7 +19,7 @@ urlpatterns = [
     url(r'^spatialitedbs/(?P<pk>[0-9]+)/$', views.SpatialitedbsDetail.as_view(), name='spatialitedb-detail'),
     url(r'^otherfiles/$', views.OtherfilesList.as_view(), name='otherfile-list'),
     url(r'^otherfiles/(?P<pk>[0-9]+)/$', views.OtherfilesDetail.as_view(), name='otherfile-detail'),
-    url(r'^projects/upload/(?P<filename>[^/]+)$', views.FileUploadView.as_view()),
+    url(r'^projects/upload/(?P<name>[^/]+)$', views.FileUploadView.as_view()),
     # allow authentication via REST
     url(r'^api-auth/', include('rest_framework.urls')),
     # HTML urls
