@@ -1,0 +1,53 @@
+version: '3.7'
+services:
+  postgres:
+    restart: always
+    container_name: geopaparazzi_postgres
+    image: mdillon/postgis:10-alpine
+    environment:
+      #- PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123qweASD
+      - POSTGRES_DB=geopap
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:latest
+    container_name: geopaparazzi_redis
+    ports:
+      - "6379:6379"
+  django:
+    restart: always
+    container_name: geopaparazzi_django
+    volumes:
+      - ./code:/code
+      - sock:/sock
+    build: 
+      context: .
+      dockerfile: dockerfiles/docker_django.conf
+    depends_on:
+      - postgres
+    links:
+      - redis
+    #command: uwsgi --ini /etc/uwsgi.ini
+    command: bash -c "python /code/manage.py collectstatic --noinput && python /code/manage.py migrate && python /code/manage.py runserver 0.0.0.0:8000  && celery worker -A geodjango --loglevel=info"
+    ports:
+      - "8000:8000"
+  nginx:
+    restart: always
+    container_name: geopaparazzi_nginx
+    volumes:
+      - ./code:/code
+      - sock:/sock
+    build:
+      context: .
+      dockerfile: dockerfiles/docker_nginx.conf
+    depends_on:
+      - django
+    ports:
+      - "8080:8080"
+volumes:
+  sock:
+  postgresql:

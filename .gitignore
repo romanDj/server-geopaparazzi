@@ -1,3 +1,5 @@
-server_venv/
 .vscode/
-geopaparazzi/media/
+code/venv/
+server_venv/
+code/geopaparazzi/media/
+code/geopaparazzi/static/
