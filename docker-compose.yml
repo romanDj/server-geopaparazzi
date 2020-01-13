@@ -32,7 +32,7 @@ services:
     links:
       - redis
     #command: uwsgi --ini /etc/uwsgi.ini
-    command: bash -c "python /code/manage.py collectstatic --noinput && python /code/manage.py migrate && python /code/manage.py runserver 0.0.0.0:8000  && celery worker -A geodjango --loglevel=info"
+    command: bash -c "python /code/manage.py collectstatic --noinput && python /code/manage.py migrate && python /code/manage.py runserver 0.0.0.0:8000  && celery worker -A geopaparazzi --loglevel=info"
     ports:
       - "8000:8000"
   nginx:
