@@ -14,13 +14,23 @@ urlpatterns = [
         name="about",
     ),
     path('admin/', admin.site.urls),
-    path("accounts/", include("allauth.urls")),
+    path("account/", include("allauth.urls")),
     path(
         "users/",
         include("users.urls", namespace="users"),
     ),
     path('gp_projects/', include('gp_projects.urls')),
     path('profiles/', include('profiles.urls')),
+    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+
+    #Api views
+    #path('api/o/v4/tokeninfo',
+    #    verify_token, name='tokeninfo'),
+    #path('api/o/v4/userinfo',
+    #    user_info, name='userinfo'),
+    #path('api/roles', roles, name='roles'),
+    #path('api/adminRole', admin_role, name='adminRole'),
+    #path('api/users', users, name='usersapi'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
