@@ -1,13 +1,9 @@
-{% extends "geonode_base.html" %}
-{% load i18n %}
+{% extends "base.html" %}
 
-{% block body %}
-  <div id="description"><h3>{% trans "Page Not Found" %}</h3></div>
-  {% if message %}
-      {{ message }}
-  {% else %}
-      {% blocktrans %}
-          The page you requested does not exist.  Perhaps you are using an outdated bookmark?
-      {% endblocktrans %}
-  {% endif %}
-{% endblock %}
+{% block title %}Page not found{% endblock %}
+
+{% block content %}
+<h1>Page not found</h1>
+
+<p>This is not the page you were looking for.</p>
+{% endblock content %}

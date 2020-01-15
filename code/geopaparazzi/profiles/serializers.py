@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from rest_framework import serializers
-from profiles.models import Project, Tag, Basemap, Spatialitedbs, Otherfiles, Profile, ProfileSet
-from profiles.models import UserProject
+from geopaparazzi.profiles.models import Project, Tag, Basemap, Spatialitedbs, Otherfiles, Profile, ProfileSet
+from geopaparazzi.profiles.models import UserProject
 from django.contrib.auth import get_user_model
 from rest_framework.fields import SkipField
 

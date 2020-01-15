@@ -1,0 +1,16 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="card-group">
+    {% for subdivision in subdivision_list %}
+      <li>
+        {{ subdivision.title }}<br>
+        {{ subdivision.description }}
+      </li>
+    {% empty %}
+      <li>У вас нет рабочих групп.</li>
+    {% endfor %}
+</div>
+
+
+{% endblock %}

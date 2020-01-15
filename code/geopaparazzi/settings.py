@@ -1,8 +1,11 @@
 import os, environ
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ROOT_DIR = environ.Path(__file__) - 3
-APPS_DIR= os.path.join(BASE_DIR, 'geopaparazzi')
+ROOT_DIR = environ.Path(__file__) - 3  # (geoserver_test/config/settings/base.py - 3 = geoserver_test/)
+APPS_DIR= os.path.join(BASE_DIR,'geopaparazzi')
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '=-(@=^$ttrizxx_*ib(4&qus*l+@jzza1!e1=-v@0up!v!n^bg'
@@ -11,6 +14,7 @@ SECRET_KEY = '=-(@=^$ttrizxx_*ib(4&qus*l+@jzza1!e1=-v@0up!v!n^bg'
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
+
 
 # Application definition
 
@@ -33,8 +37,6 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework_gis',
     'rest_framework_datatables',
-    'guardian',
-    'oauth2_provider',
 ]
 
 LOCAL_APPS = [
@@ -42,8 +44,7 @@ LOCAL_APPS = [
     'geopaparazzi.geopaparazzi',
     'geopaparazzi.profiles',
     'geopaparazzi.gp_projects',
-    'geopaparazzi.api',
-    'geopaparazzi.base',
+    'geopaparazzi.projects'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -57,12 +58,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'oauth2_provider.middleware.OAuth2TokenMiddleware',
 ]
 
 ROOT_URLCONF = 'geopaparazzi.urls'
-
-AUTH_IP_WHITELIST = [ '192.168.99.100' ]
 
 TEMPLATES = [
     {
@@ -132,24 +130,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 AUTHENTICATION_BACKENDS = [
-    'oauth2_provider.backends.OAuth2Backend',
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
-    'guardian.backends.ObjectPermissionBackend',
 ]
 
-OAUTH2_PROVIDER = {
-    'SCOPES': {
-        'read': 'Read scope',
-        'write': 'Write scope',
-        'groups': 'Access to your groups'
-    },
-
-    'CLIENT_ID_GENERATOR_CLASS': 'oauth2_provider.generators.ClientIdGenerator',
-}
-
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
-AUTH_USER_MODEL = 'geopaparazzi.users.User'
+AUTH_USER_MODEL = 'users.User'
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
 LOGIN_REDIRECT_URL = 'users:redirect'
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
@@ -228,31 +214,3 @@ CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
-
-
-OGC_SERVER = {
-    'default': {
-        'BACKEND': 'geopaparazzi.geoserver',
-        'LOCATION': 'http://192.168.99.100/geoserver/',
-        'LOGIN_ENDPOINT': 'j_spring_oauth2_geonode_login',
-        'LOGOUT_ENDPOINT': 'j_spring_oauth2_geonode_logout',
-        # PUBLIC_LOCATION needs to be kept like this because in dev mode
-        # the proxy won't work and the integration tests will fail
-        # the entire block has to be overridden in the local_settings
-        'PUBLIC_LOCATION': 'http://192.168.99.100/geoserver/',
-        'USER': 'admin',
-        'PASSWORD': 'geoserver',
-        'MAPFISH_PRINT_ENABLED': True,
-        'PRINT_NG_ENABLED': True,
-        'GEONODE_SECURITY_ENABLED': True,
-        'GEOGIG_ENABLED': False,
-        'WMST_ENABLED': False,
-        'BACKEND_WRITE_ENABLED': True,
-        'WPS_ENABLED': False,
-        'LOG_FILE': '%s/geoserver/data/logs/geoserver.log' % os.path.abspath(os.path.join(BASE_DIR, os.pardir)),
-        # Set to name of database in DATABASES dictionary to enable
-        'DATASTORE': '',  # 'datastore',
-        'PG_GEOGIG': False,
-        'TIMEOUT': 10  # number of seconds to allow for HTTP requests
-    }
-}

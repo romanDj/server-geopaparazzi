@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render
-from profiles.models import Project, Tag, Basemap, Spatialitedbs, Otherfiles, Profile, ProfileSet, UserProject
-from profiles.serializers import ProjectSerializer, TagSerializer, BasemapSerializer, UserProjectSerializer
-from profiles.serializers import SpatialitedbsSerializer, OtherfilesSerializer, ProfileSerializer, ProfileSetSerializer
+from geopaparazzi.profiles.models import Project, Tag, Basemap, Spatialitedbs, Otherfiles, Profile, ProfileSet, UserProject
+from geopaparazzi.profiles.serializers import ProjectSerializer, TagSerializer, BasemapSerializer, UserProjectSerializer
+from geopaparazzi.profiles.serializers import SpatialitedbsSerializer, OtherfilesSerializer, ProfileSerializer, ProfileSetSerializer
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response

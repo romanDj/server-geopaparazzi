@@ -4,35 +4,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
-from geopaparazzi.api.views import verify_token, user_info, roles, users, admin_role
 
 #корневые пути всего проекта
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    path(
-        "about/",
-        TemplateView.as_view(template_name="pages/about.html"),
-        name="about",
-    ),
+    path("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     path('admin/', admin.site.urls),
-    path("account/", include("allauth.urls")),
-    path(
-        "users/",
-        include("users.urls", namespace="users"),
-    ),
-    path('gp_projects/', include('gp_projects.urls')),
-    path('profiles/', include('profiles.urls')),
-    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-
-    #Api views
-    path('api/o/v4/tokeninfo', 
-        verify_token, name='tokeninfo'),
-    path('api/o/v4/userinfo',
-        user_info, name='userinfo'),
-    path('api/roles', roles, name='roles'),
-    path('api/adminRole', admin_role, name='adminRole'),
-    path('api/users', users, name='usersapi'),
-    
+    path("accounts/", include("allauth.urls")),
+    path("users/", include("geopaparazzi.users.urls", namespace="users")),
+    path('gp_projects/', include('geopaparazzi.gp_projects.urls')),
+    path('profiles/', include('geopaparazzi.profiles.urls')),
+    path('subdivision/', include('geopaparazzi.projects.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

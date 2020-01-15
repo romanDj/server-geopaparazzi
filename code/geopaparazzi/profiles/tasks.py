@@ -8,7 +8,7 @@ import sqlite3
 import tempfile
 from PIL import Image, ExifTags
 from django.contrib.auth import get_user_model
-from gp_projects.models import ImageNote, Note, TrackFeature
+from geopaparazzi.gp_projects.models import ImageNote, Note, TrackFeature
 from django.contrib.gis.geos import Point, LineString
 from django.core.files import File
 from django.core.files.storage import default_storage

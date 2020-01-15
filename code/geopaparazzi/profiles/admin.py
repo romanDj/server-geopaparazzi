@@ -1,7 +1,7 @@
 from django.contrib.gis import admin
 
 # Register your models here.
-from profiles.models import Project, UserProject, Tag, Basemap, Spatialitedbs, Otherfiles, Profile, ProfileSet
+from geopaparazzi.profiles.models import Project, UserProject, Tag, Basemap, Spatialitedbs, Otherfiles, Profile, ProfileSet
 
 # a simple django admin page for a model
 admin.site.register(Project)
