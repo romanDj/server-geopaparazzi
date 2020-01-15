@@ -1,10 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="card-group">
-	<form method="post">{% csrf_token %}
-	    {{ form.as_p }}
-	    <input type="submit" value="Save">
+<div>
+	<a href="{% url 'subdivision_list' %}" class="nav-link p-1">Вернуться к списку подразделений</a>
+	<h5 class="mt-2 mb-2">Форма подразделения</h5>
+	{{ form.media }}
+	<form method="post">
+		{% csrf_token %}
+		<div class="form-group">
+			{{ form.title.errors }}
+			<label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+			{{form.title}}
+		</div>
+		<div class="form-group">
+			{{ form.description.errors }}
+			<label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+			{{form.description}}
+		</div>
+		<div class="form-group">
+			{{ form.participants.errors }}
+			<label for="{{ form.participants.id_for_label }}">{{ form.participants.label }}</label>
+			{{form.participants}}
+		</div>
+		<input type="submit" class="btn btn-success p-1" value="Save">
 	</form>
 </div>
 

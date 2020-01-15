@@ -4,8 +4,9 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 
 from .models import Subdivision, Project
+from .forms import SubdivisionForm
 
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormMixin
 from django.urls import reverse_lazy
 
 """
@@ -33,19 +34,19 @@ class SubdivisionListView(ListView):
         context['some_data'] = 'в get_context_data передавать свои параметры'
         return context
 
-    def get_queryset(self):
-        return Subdivision.objects.filter(title__icontains='люди')[:5] 
+#    def get_queryset(self):
+#        return Subdivision.objects.filter(title__icontains='люди')[:5] 
 
 
 class SubdivisionCreate(CreateView):
-	model = Subdivision
-	template_name = 'subdivision_form.html'
-	fields = [ 'title', 'description', 'participants' ]
+    model = Subdivision
+    template_name = 'subdivision_form.html'#fields = [ 'title', 'description', 'participants' ]
+    form_class = SubdivisionForm
 
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		context['some_data'] = 'в get_context_data передавать свои параметры'
-		return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['some_data'] = 'в get_context_data передавать свои параметры'
+        return context
 
 
 class SubdivisionDetailView(DetailView):
@@ -54,14 +55,14 @@ class SubdivisionDetailView(DetailView):
 
 
 class SubdivisionUpdate(UpdateView):
-	model = Subdivision
-	template_name = 'subdivision_form.html'
-	fields = ['title', 'description' ]
+    model = Subdivision
+    template_name = 'subdivision_form.html'#fields = ['title', 'description' ]
+    form_class = SubdivisionForm
 
 class SubdivisionDelete(DeleteView):
-	model = Subdivision
-	template_name = 'subdivision_form.html'
-	success_url = reverse_lazy('subdivision_list')
+    model = Subdivision
+    template_name = 'subdivision_form.html'
+    success_url = reverse_lazy('subdivision_list')
 
 
 

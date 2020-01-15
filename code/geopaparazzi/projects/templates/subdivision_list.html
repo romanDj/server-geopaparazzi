@@ -1,16 +1,24 @@
 
 {% extends "base.html" %}
 {% block content %}
-<div class="card-group">
-    {% for subdivision in subdivision_list %}
-      <li>
-        {{ subdivision.title }}<br>
-        {{ subdivision.description }}
-      </li>
-    {% empty %}
-      <li>У вас нет рабочих групп.</li>
-    {% endfor %}
-</div>
+<div>
+	<a href="{% url 'subdivision_create' %}" class="btn btn-primary p-1 mt-1 mb-1">+ новая</a>
+
+	<div class="list-group">
+		{% for subdivision in subdivision_list %}
+		<a href="{% url 'subdivision_detail' subdivision.id  %}" class="list-group-item list-group-item-action flex-column align-items-start">
+			<div class="d-flex w-100 justify-content-between">
+				<h6 class="mb-1">{{ subdivision.title }}</h5>
+					<small>Дата создания</small>
+				</div>
+				<p class="mb-1">{{ subdivision.description }}</p>
+				<small>Donec id elit non mi porta.</small>
+			</a>
+			{% empty %}
+			<h5>У вас нет рабочих групп.</h5>
+			{% endfor %}
+		</div>	
+	</div>
 
 
-{% endblock %}
+	{% endblock %}
