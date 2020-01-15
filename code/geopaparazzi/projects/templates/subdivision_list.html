@@ -8,11 +8,10 @@
 		{% for subdivision in subdivision_list %}
 		<a href="{% url 'subdivision_detail' subdivision.id  %}" class="list-group-item list-group-item-action flex-column align-items-start">
 			<div class="d-flex w-100 justify-content-between">
-				<h6 class="mb-1">{{ subdivision.title }}</h5>
-					<small>Дата создания</small>
+				<h6 class="mb-1">{{subdivision.title}}</h5>
+					<small>{{subdivision.created_date}}</small>
 				</div>
-				<p class="mb-1">{{ subdivision.description }}</p>
-				<small>Donec id elit non mi porta.</small>
+				<small>{{subdivision.description}}</small>
 			</a>
 			{% empty %}
 			<h5>У вас нет рабочих групп.</h5>

@@ -1,7 +1,22 @@
 
 {% extends "base.html" %}
 {% block content %}
+<a href="{% url 'subdivision_list' %}" class="nav-link p-1">Вернуться к списку подразделений</a>
+<div class="flex-row">
+	<a href="{% url 'subdivision_update' object.id %}" class="btn btn-secondary p-1">Редактировать</a>
+	<a href="{% url 'subdivision_delete' object.id %}" class="btn btn-danger p-1">Удалить</a>
+</div>
 <div class="card">
-    {{object.title}}
+	<p>Название подразделения: {{object.title}}</p>
+    <p>Краткое описание: {{object.description}}</p>
+    <small>Дата создания: {{object.created_date}}</small>
+    <h6>Участники</h6>
+    {% for user in object.participants.all %}
+    	<p>{{user.username}}</p>
+    {% empty %}
+    	<p>нет участников</p>
+    {% endfor %}
+    <br>
+    <p>Рабочие проекты карт</p>
 </div>
 {% endblock %}
